@@ -196,4 +196,7 @@
 		@apply bg-background text-foreground;
 		letter-spacing: var(--tracking-normal);
 	}
+	button {
+		@apply cursor-pointer;
+	}
 }

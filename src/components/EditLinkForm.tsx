@@ -1,7 +1,8 @@
 "use client"
 
+import { Loader2Icon } from "lucide-react"
 import { useState } from "react"
-import { createLink } from "~/app/edit/actions"
+import { createLink, updateLink } from "~/app/edit/actions"
 import { Button } from "~/components/ui/button"
 import { Card } from "~/components/ui/card"
 import {
@@ -13,32 +14,59 @@ import {
 } from "~/components/ui/dialog"
 import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
+import type { linkTable } from "~/db/schema"
 
-export function EditLinkForm() {
-	const [isOpen, setIsOpen] = useState(false)
+export function EditLinkForm({
+	link,
+	trigger,
+	isOpen: controlledIsOpen,
+	onOpenChange
+}: {
+	link?: typeof linkTable.$inferSelect
+	trigger?: React.ReactNode
+	isOpen?: boolean
+	onOpenChange?: (open: boolean) => void
+}) {
+	const [internalIsOpen, setInternalIsOpen] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
 
-	const handleCreate = async (formData: FormData) => {
-		await createLink(formData)
+	const isOpen =
+		controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen
+	const setIsOpen = onOpenChange || setInternalIsOpen
+
+	const isEditMode = !!link
+
+	const handleSubmit = async (formData: FormData) => {
+		setIsLoading(true)
+		if (isEditMode) {
+			formData.append("id", link.id)
+			await updateLink(formData)
+		} else {
+			await createLink(formData)
+		}
 		setIsOpen(false)
+		setIsLoading(false)
 	}
+
+	const defaultTrigger = (
+		<Card className="w-full aspect-video border-dashed cursor-pointer hover:bg-muted/50 transition-colors flex justify-center items-center">
+			<div className="text-center">
+				<div className="text-6xl text-muted-foreground mb-4">+</div>
+				<div className="text-muted-foreground font-medium">Add New Link</div>
+			</div>
+		</Card>
+	)
 
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogTrigger asChild>
-				<Card className="w-full aspect-video border-dashed cursor-pointer hover:bg-muted/50 transition-colors flex justify-center items-center">
-					<div className="text-center">
-						<div className="text-6xl text-muted-foreground mb-4">+</div>
-						<div className="text-muted-foreground font-medium">
-							Add New Link
-						</div>
-					</div>
-				</Card>
-			</DialogTrigger>
+			{(trigger || !isEditMode) && (
+				<DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
+			)}
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Add New Link</DialogTitle>
+					<DialogTitle>{isEditMode ? "Edit Link" : "Add New Link"}</DialogTitle>
 				</DialogHeader>
-				<form action={handleCreate} className="space-y-4">
+				<form action={handleSubmit} className="space-y-4">
 					<div>
 						<label htmlFor="name" className="text-sm font-medium">
 							Name <span className="text-red-500">*</span>
@@ -46,6 +74,7 @@ export function EditLinkForm() {
 						<Input
 							id="name"
 							name="name"
+							defaultValue={link?.name || ""}
 							placeholder="Enter item name"
 							required
 						/>
@@ -58,15 +87,21 @@ export function EditLinkForm() {
 							id="url"
 							name="url"
 							type="url"
+							defaultValue={link?.url || ""}
 							placeholder="https://example.com"
 							required
 						/>
 					</div>
 					<div>
 						<label htmlFor="file" className="text-sm font-medium">
-							Background
+							{isEditMode ? "Replace Background (optional)" : "Background"}
 						</label>
 						<Input id="file" name="file" type="file" accept="image/*" />
+						{isEditMode && link?.filename && (
+							<p className="text-xs text-muted-foreground mt-1">
+								Current: {link.filename}
+							</p>
+						)}
 					</div>
 					<div>
 						<label htmlFor="description" className="text-sm font-medium">
@@ -75,13 +110,20 @@ export function EditLinkForm() {
 						<Textarea
 							id="description"
 							name="description"
+							defaultValue={link?.description || ""}
 							placeholder="Optional description"
 							rows={3}
 						/>
 					</div>
 					<div className="flex gap-2">
 						<Button type="submit" className="flex-1">
-							Create Link
+							{isLoading ? (
+								<Loader2Icon className="animate-spin size-6" />
+							) : isEditMode ? (
+								"Save Changes"
+							) : (
+								"Create Link"
+							)}
 						</Button>
 						<Button
 							type="button"
