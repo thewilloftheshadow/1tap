@@ -4,10 +4,30 @@ import { headers } from "next/headers"
 import Image from "next/image"
 import Link from "next/link"
 import { env } from "~/lib/env"
+import type { Metadata } from "next"
 
 const inter = Inter({
 	subsets: ["latin"]
 })
+
+export const metadata: Metadata = {
+	title: env.PRODUCT_NAME,
+	icons: {
+		icon: env.LOGO_URL,
+		shortcut: env.LOGO_URL,
+		apple: env.LOGO_URL
+	},
+	openGraph: {
+		title: env.PRODUCT_NAME,
+		images: [env.LOGO_URL],
+		type: "website"
+	},
+	twitter: {
+		card: "summary",
+		title: env.PRODUCT_NAME,
+		images: [env.LOGO_URL]
+	}
+}
 
 export default async function RootLayout({
 	children
