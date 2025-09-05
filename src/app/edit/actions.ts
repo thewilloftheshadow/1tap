@@ -158,7 +158,9 @@ export async function createCategory(name: string) {
 		)
 	}
 
-	if (["main", "edit"].includes(normalizedName)) {
+	if (
+		["main", "edit", "analytics", "uploads", "api"].includes(normalizedName)
+	) {
 		throw new Error("Category name cannot be a reserved keyword")
 	}
 
