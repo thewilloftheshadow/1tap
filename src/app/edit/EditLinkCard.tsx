@@ -40,7 +40,11 @@ export function EditLinkCard({
 	}
 
 	const handleDelete = async () => {
-		if (confirm("Are you sure you want to delete this link?")) {
+		if (
+			confirm(
+				"Are you sure you want to delete this link?\n\nThis will permanently delete the link and ALL its analytics data (click tracking). If you want to keep the analytics data, consider disabling the link instead by turning off the toggle."
+			)
+		) {
 			await deleteLink(link.id)
 		}
 	}

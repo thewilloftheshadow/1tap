@@ -34,14 +34,31 @@ export default async function RootLayout({
 							{env.PRODUCT_NAME}
 						</span>
 					</div>
-					{pathname === "/edit" ? (
-						<Link
-							href="/"
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							← Back to Site
-						</Link>
-					) : null}
+					<div className="flex items-center gap-4">
+						{pathname === "/edit" ? (
+							<>
+								<Link
+									href="/analytics"
+									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									Analytics
+								</Link>
+								<Link
+									href="/"
+									className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+								>
+									← Back to Site
+								</Link>
+							</>
+						) : pathname === "/analytics" ? (
+							<Link
+								href="/edit"
+								className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+							>
+								← Back to Edit
+							</Link>
+						) : null}
+					</div>
 				</header>
 				<main className="flex-1 pt-20 mb-6 w-full flex flex-col items-center">
 					{children}

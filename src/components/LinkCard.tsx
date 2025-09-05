@@ -1,14 +1,17 @@
-import Link from "next/link"
 import type { linkTable } from "~/db/schema"
+import { TrackableLink } from "./TrackableLink"
 
-interface LinkCardProps {
+export function LinkCard({
+	link,
+	asLink = true,
+	categoryId
+}: {
 	link: typeof linkTable.$inferSelect
 	asLink?: boolean
 	className?: string
 	children?: React.ReactNode
-}
-
-export function LinkCard({ link, asLink = true }: LinkCardProps) {
+	categoryId?: string
+}) {
 	const backgroundUrl = link.filename ? `/uploads/${link.filename}` : null
 	const isImage = link.filename
 		? /\.(jpg|jpeg|png|gif|webp)$/i.test(link.filename)
@@ -28,7 +31,9 @@ export function LinkCard({ link, asLink = true }: LinkCardProps) {
 	)
 
 	return asLink ? (
-		<Link
+		<TrackableLink
+			linkId={link.id}
+			categoryId={categoryId || link.categoryId || ""}
 			href={link.url ? link.url : `/`}
 			target="_blank"
 			rel="noopener noreferrer"
@@ -42,7 +47,7 @@ export function LinkCard({ link, asLink = true }: LinkCardProps) {
 			}}
 		>
 			{card}
-		</Link>
+		</TrackableLink>
 	) : (
 		<div
 			className="block w-full aspect-video bg-cover bg-no-repeat rounded-2xl"

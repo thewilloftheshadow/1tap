@@ -22,3 +22,26 @@ export const linkTable = sqliteTable("links", {
 export const linkCategory = sqliteTable("link_categories", {
 	id: text().primaryKey()
 })
+
+export const categoryVisit = sqliteTable("category_visits", {
+	id: text()
+		.$defaultFn(() => createId())
+		.primaryKey(),
+	categoryId: text().notNull(),
+	userAgent: text(),
+	ip: text(),
+	visitedAt: integer({ mode: "timestamp_ms" }).$defaultFn(() => new Date())
+})
+
+export const linkClick = sqliteTable("link_clicks", {
+	id: text()
+		.$defaultFn(() => createId())
+		.primaryKey(),
+	linkId: text()
+		.notNull()
+		.references(() => linkTable.id),
+	categoryId: text().notNull(),
+	userAgent: text(),
+	ip: text(),
+	clickedAt: integer({ mode: "timestamp_ms" }).$defaultFn(() => new Date())
+})

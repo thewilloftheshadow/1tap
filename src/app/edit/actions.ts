@@ -5,7 +5,7 @@ import path from "node:path"
 import { and, eq, max } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { db } from "~/db"
-import { linkCategory, linkTable } from "~/db/schema"
+import { linkCategory, linkClick, linkTable } from "~/db/schema"
 
 export async function createLink(formData: FormData) {
 	const name = formData.get("name") as string
@@ -124,6 +124,10 @@ export async function deleteLink(id: string) {
 		}
 	}
 
+	// Delete all analytics data for this link
+	await db.delete(linkClick).where(eq(linkClick.linkId, id))
+
+	// Delete the link itself
 	await db.delete(linkTable).where(eq(linkTable.id, id))
 
 	revalidatePath("/edit")
