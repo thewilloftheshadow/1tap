@@ -1,22 +1,49 @@
 import { Inter } from "next/font/google"
 import "~/styles/globals.css"
-import Header from "~/components/Header"
+import { headers } from "next/headers"
+import Image from "next/image"
+import Link from "next/link"
 import { env } from "~/lib/env"
 
 const inter = Inter({
 	subsets: ["latin"]
 })
 
-export default function RootLayout({
+export default async function RootLayout({
 	children
 }: {
 	children: React.ReactNode
 }) {
+	const headersList = await headers()
+	const pathname = headersList.get("x-current-path") || "/"
+	let categoryId = pathname.split("/")[1]
+	if (categoryId === "edit") categoryId = ""
 	return (
 		<html lang="en" className={inter.className}>
 			<body className="min-h-screen flex flex-col items-center">
-				<Header logoUrl={env.LOGO_URL} productName={env.PRODUCT_NAME} />
-				<main className="flex-1 pt-20 w-full flex flex-col items-center">
+				<header className="fixed top-0 left-0 right-0 z-50 w-full bg-background/80 backdrop-blur-sm border-b border-border px-5 py-1 flex flex-row justify-between items-center">
+					<div className="flex items-center">
+						<Image
+							src={env.LOGO_URL}
+							alt={`${env.PRODUCT_NAME} Logo`}
+							width={40}
+							height={40}
+							className="size-10"
+						/>
+						<span className="text-primary-foreground font-bold text-lg">
+							{env.PRODUCT_NAME}
+						</span>
+					</div>
+					{pathname === "/edit" ? (
+						<Link
+							href="/"
+							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+						>
+							← Back to Site
+						</Link>
+					) : null}
+				</header>
+				<main className="flex-1 pt-20 mb-6 w-full flex flex-col items-center">
 					{children}
 				</main>
 				{/* <footer className="text-muted-foreground font-normal text-xs mb-4">

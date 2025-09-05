@@ -20,12 +20,14 @@ export function EditLinkForm({
 	link,
 	trigger,
 	isOpen: controlledIsOpen,
-	onOpenChange
+	onOpenChange,
+	categoryId
 }: {
 	link?: typeof linkTable.$inferSelect
 	trigger?: React.ReactNode
 	isOpen?: boolean
 	onOpenChange?: (open: boolean) => void
+	categoryId?: string
 }) {
 	const [internalIsOpen, setInternalIsOpen] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
@@ -42,6 +44,9 @@ export function EditLinkForm({
 			formData.append("id", link.id)
 			await updateLink(formData)
 		} else {
+			if (categoryId) {
+				formData.append("categoryId", categoryId)
+			}
 			await createLink(formData)
 		}
 		setIsOpen(false)

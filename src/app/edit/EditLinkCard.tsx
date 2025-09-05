@@ -1,8 +1,10 @@
 "use client"
 
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { useState } from "react"
 import { deleteLink, toggleLinkActive } from "~/app/edit/actions"
-import { EditLinkForm } from "~/components/EditLinkForm"
+import { EditLinkForm } from "~/app/edit/EditLinkForm"
 import { LinkCard } from "~/components/LinkCard"
 import { Button } from "~/components/ui/button"
 import { Switch } from "~/components/ui/switch"
@@ -15,6 +17,21 @@ export function EditLinkCard({
 }) {
 	const [isEditOpen, setIsEditOpen] = useState(false)
 	const [isActive, setIsActive] = useState(link.active)
+
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging
+	} = useSortable({ id: link.id })
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1
+	}
 
 	const handleToggleActive = async () => {
 		const newActiveState = !isActive
@@ -29,13 +46,19 @@ export function EditLinkCard({
 	}
 
 	return (
-		<div className="relative">
+		<div
+			ref={setNodeRef}
+			style={style}
+			className="relative cursor-grab active:cursor-grabbing"
+			{...attributes}
+			{...listeners}
+		>
 			<LinkCard
 				link={link}
 				asLink={false}
 				className={!isActive ? "opacity-50" : ""}
 			>
-				<div className="absolute top-2 right-2 flex gap-2">
+				<div className="absolute top-2 right-2 flex gap-2 pointer-events-auto">
 					<Switch
 						checked={isActive}
 						onCheckedChange={handleToggleActive}
@@ -44,7 +67,7 @@ export function EditLinkCard({
 				</div>
 			</LinkCard>
 
-			<div className="flex gap-2 mt-2">
+			<div className="flex gap-2 mt-2 pointer-events-auto">
 				<EditLinkForm
 					link={link}
 					isOpen={isEditOpen}
