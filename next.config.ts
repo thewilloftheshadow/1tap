@@ -8,8 +8,10 @@ const config: NextConfig = {
 		serverSourceMaps: false,
 		serverActions: {
 			bodySizeLimit: "100mb"
-		}
-	}
+		},
+		esmExternals: true
+	},
+	transpilePackages: ["file-type"]
 }
 
 export default config
