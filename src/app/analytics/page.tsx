@@ -15,7 +15,8 @@ function formatDate(date: Date | null) {
 		month: "short",
 		day: "numeric",
 		hour: "2-digit",
-		minute: "2-digit"
+		minute: "2-digit",
+		timeZoneName: "short"
 	}).format(date)
 }
 
@@ -24,11 +25,6 @@ function formatCategoryName(categoryId: string) {
 		.split("-")
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(" ")
-}
-
-function truncateUserAgent(userAgent: string | null) {
-	if (!userAgent) return "Unknown"
-	return userAgent.length > 50 ? `${userAgent.substring(0, 50)}...` : userAgent
 }
 
 export default async function AnalyticsPage() {
@@ -158,14 +154,6 @@ export default async function AnalyticsPage() {
 												{formatDate(visit.visitedAt)}
 											</p>
 										</div>
-										<div className="text-right">
-											<p className="text-xs text-muted-foreground">
-												IP: {visit.ip || "Unknown"}
-											</p>
-											<p className="text-xs text-muted-foreground">
-												{truncateUserAgent(visit.userAgent)}
-											</p>
-										</div>
 									</div>
 								</div>
 							))}
@@ -191,14 +179,6 @@ export default async function AnalyticsPage() {
 											</p>
 											<p className="text-sm text-muted-foreground">
 												{formatDate(click.clickedAt)}
-											</p>
-										</div>
-										<div className="text-right">
-											<p className="text-xs text-muted-foreground">
-												IP: {click.ip || "Unknown"}
-											</p>
-											<p className="text-xs text-muted-foreground">
-												{truncateUserAgent(click.userAgent)}
 											</p>
 										</div>
 									</div>

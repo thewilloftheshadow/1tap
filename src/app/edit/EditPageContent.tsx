@@ -50,13 +50,15 @@ function EditLinkForm({
 	trigger,
 	isOpen: controlledIsOpen,
 	onOpenChange,
-	categoryId
+	categoryId,
+	onSuccess
 }: {
 	link?: typeof linkTable.$inferSelect
 	trigger?: React.ReactNode
 	isOpen?: boolean
 	onOpenChange?: (open: boolean) => void
 	categoryId?: string
+	onSuccess?: () => void
 }) {
 	const [internalIsOpen, setInternalIsOpen] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
@@ -80,6 +82,7 @@ function EditLinkForm({
 				await createLink(formData)
 			}
 			setIsOpen(false)
+			onSuccess?.()
 		} finally {
 			setIsLoading(false)
 		}
@@ -177,7 +180,13 @@ function EditLinkForm({
 	)
 }
 
-function EditLinkCard({ link }: { link: typeof linkTable.$inferSelect }) {
+function EditLinkCard({
+	link,
+	onSuccess
+}: {
+	link: typeof linkTable.$inferSelect
+	onSuccess?: () => void
+}) {
 	const [isEditOpen, setIsEditOpen] = useState(false)
 	const [isActive, setIsActive] = useState(link.active)
 
@@ -200,6 +209,7 @@ function EditLinkCard({ link }: { link: typeof linkTable.$inferSelect }) {
 		const newActiveState = !isActive
 		setIsActive(newActiveState)
 		await toggleLinkActive(link.id, newActiveState)
+		onSuccess?.()
 	}
 
 	const handleDelete = async () => {
@@ -209,6 +219,7 @@ function EditLinkCard({ link }: { link: typeof linkTable.$inferSelect }) {
 			)
 		) {
 			await deleteLink(link.id)
+			onSuccess?.()
 		}
 	}
 
@@ -241,6 +252,7 @@ function EditLinkCard({ link }: { link: typeof linkTable.$inferSelect }) {
 					link={link}
 					isOpen={isEditOpen}
 					onOpenChange={setIsEditOpen}
+					onSuccess={onSuccess}
 					trigger={
 						<Button variant="outline" size="sm" className="flex-1">
 							Edit
@@ -270,6 +282,17 @@ export function EditPageContent() {
 			coordinateGetter: sortableKeyboardCoordinates
 		})
 	)
+
+	const refreshCategories = async () => {
+		const categoriesData = await getCategories()
+		setCategories(categoriesData)
+	}
+
+	const refreshLinks = async () => {
+		if (!selectedCategoryId) return
+		const linksData = await getLinksByCategory(selectedCategoryId)
+		setLinks(linksData)
+	}
 
 	useEffect(() => {
 		async function loadCategories() {
@@ -306,7 +329,7 @@ export function EditPageContent() {
 		try {
 			const newCategory = await createCategory(newCategoryName.trim())
 			if (newCategory) {
-				setCategories((prev) => [...prev, newCategory])
+				await refreshCategories()
 				setSelectedCategoryId(newCategory.id)
 			}
 			setNewCategoryName("")
@@ -333,8 +356,7 @@ export function EditPageContent() {
 				const linkIds = newLinks.map((link) => link.id)
 				await reorderLinks(selectedCategoryId, linkIds)
 
-				const updatedLinks = await getLinksByCategory(selectedCategoryId)
-				setLinks(updatedLinks)
+				await refreshLinks()
 			}
 		}
 	}
@@ -429,11 +451,18 @@ export function EditPageContent() {
 								strategy={rectSortingStrategy}
 							>
 								{links.map((link) => (
-									<EditLinkCard key={link.id} link={link} />
+									<EditLinkCard
+										key={link.id}
+										link={link}
+										onSuccess={refreshLinks}
+									/>
 								))}
 							</SortableContext>
 						</DndContext>
-						<EditLinkForm categoryId={selectedCategoryId} />
+						<EditLinkForm
+							categoryId={selectedCategoryId}
+							onSuccess={refreshLinks}
+						/>
 					</div>
 				</div>
 			)}
