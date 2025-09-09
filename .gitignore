@@ -4,5 +4,5 @@ node_modules
 .next
 .DS_Store
 public/logo.png
-public/uploads
-!public/uploads/.gitkeep
+uploads
+!src/app/uploads

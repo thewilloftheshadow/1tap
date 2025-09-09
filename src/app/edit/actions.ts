@@ -26,7 +26,7 @@ export async function createLink(formData: FormData) {
 
 		const bytes = await file.arrayBuffer()
 		const buffer = Buffer.from(bytes)
-		const filePath = path.join(process.cwd(), "public/uploads", filename)
+		const filePath = path.join(process.cwd(), "uploads", filename)
 
 		await writeFile(filePath, buffer)
 	}
@@ -81,7 +81,7 @@ export async function updateLink(formData: FormData) {
 
 		const bytes = await file.arrayBuffer()
 		const buffer = Buffer.from(bytes)
-		const filePath = path.join(process.cwd(), "public/uploads", filename)
+		const filePath = path.join(process.cwd(), "uploads", filename)
 
 		await writeFile(filePath, buffer)
 		updateData.filename = filename
@@ -113,11 +113,7 @@ export async function deleteLink(id: string) {
 
 	if (link.length > 0 && link[0]?.filename) {
 		try {
-			const filePath = path.join(
-				process.cwd(),
-				"public/uploads",
-				link[0].filename
-			)
+			const filePath = path.join(process.cwd(), "uploads", link[0].filename)
 			await unlink(filePath)
 		} catch (error) {
 			console.warn(`Failed to delete file ${link[0].filename}:`, error)

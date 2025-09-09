@@ -13,9 +13,9 @@ import {
 	arrayMove,
 	rectSortingStrategy,
 	SortableContext,
-	sortableKeyboardCoordinates
+	sortableKeyboardCoordinates,
+	useSortable
 } from "@dnd-kit/sortable"
-import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Loader2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -69,17 +69,20 @@ function EditLinkForm({
 
 	const handleSubmit = async (formData: FormData) => {
 		setIsLoading(true)
-		if (isEditMode) {
-			formData.append("id", link.id)
-			await updateLink(formData)
-		} else {
-			if (categoryId) {
-				formData.append("categoryId", categoryId)
+		try {
+			if (isEditMode) {
+				formData.append("id", link.id)
+				await updateLink(formData)
+			} else {
+				if (categoryId) {
+					formData.append("categoryId", categoryId)
+				}
+				await createLink(formData)
 			}
-			await createLink(formData)
+			setIsOpen(false)
+		} finally {
+			setIsLoading(false)
 		}
-		setIsOpen(false)
-		setIsLoading(false)
 	}
 
 	const defaultTrigger = (
@@ -150,7 +153,7 @@ function EditLinkForm({
 						/>
 					</div>
 					<div className="flex gap-2">
-						<Button type="submit" className="flex-1">
+						<Button type="submit" className="flex-1" disabled={isLoading}>
 							{isLoading ? (
 								<Loader2Icon className="animate-spin size-6" />
 							) : isEditMode ? (
@@ -163,6 +166,7 @@ function EditLinkForm({
 							type="button"
 							variant="outline"
 							onClick={() => setIsOpen(false)}
+							disabled={isLoading}
 						>
 							Cancel
 						</Button>
