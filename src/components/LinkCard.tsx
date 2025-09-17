@@ -35,7 +35,6 @@ export function LinkCard({
 			linkId={link.id}
 			categoryId={categoryId || link.categoryId || ""}
 			href={link.url ? link.url : `/`}
-			target="_blank"
 			rel="noopener noreferrer"
 			prefetch={false}
 			className="block w-full aspect-video bg-cover bg-no-repeat rounded-2xl"
