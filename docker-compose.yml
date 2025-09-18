@@ -1,0 +1,25 @@
+services:
+    app:
+        build: .
+        ports:
+            - "3000:3000"
+        environment:
+            - NODE_ENV=production
+            - PORT=3000
+            - PRODUCT_NAME=1Tap
+            - LOGO_URL=/logo.png
+            - EDIT_PASSWORD=${EDIT_PASSWORD:-changeme123}
+        volumes:
+            - app_data:/app/data
+            - app_data:/app/uploads
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+
+volumes:
+    app_data:
+        driver: local

@@ -1,2 +1,5 @@
 import { drizzle } from "drizzle-orm/bun-sqlite"
-export const db = drizzle("./local.db")
+
+const dbUrl =
+	process.env.NODE_ENV === "production" ? "/app/data/app.db" : "./local.db"
+export const db = drizzle(dbUrl)
