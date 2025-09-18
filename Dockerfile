@@ -16,6 +16,10 @@ RUN bun install --frozen-lockfile --ignore-scripts
 
 COPY . .
 
+# Create an empty database file for build process
+RUN mkdir -p data && touch data/app.db
+RUN touch local.db
+
 RUN bun run build
 
 FROM base AS prod-deps
