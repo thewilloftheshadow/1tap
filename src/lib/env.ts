@@ -15,10 +15,12 @@ export const env = createEnv({
 		BETTER_AUTH_URL: z.url(),
 		AUTHORIZED_DOMAIN: z.string(),
 		GOOGLE_CLIENT_ID: z.string(),
-		GOOGLE_CLIENT_SECRET: z.string()
+		GOOGLE_CLIENT_SECRET: z.string(),
+		POSTHOG_API_KEY: z.string().optional()
 	},
 	client: {
-		NEXT_PUBLIC_BETTER_AUTH_URL: z.url()
+		NEXT_PUBLIC_BETTER_AUTH_URL: z.url(),
+		NEXT_PUBLIC_POSTHOG_KEY: z.string().optional()
 	},
 	runtimeEnv: {
 		PRODUCT_NAME: process.env.PRODUCT_NAME,
@@ -29,6 +31,8 @@ export const env = createEnv({
 		NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
 		AUTHORIZED_DOMAIN: process.env.AUTHORIZED_DOMAIN,
 		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-		GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+		GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+		POSTHOG_API_KEY: process.env.POSTHOG_API_KEY,
+		NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY
 	}
 })

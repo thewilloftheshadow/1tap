@@ -3,6 +3,7 @@
 import { headers } from "next/headers"
 import { db } from "~/db"
 import { categoryVisit, linkClick } from "~/db/schema"
+import { captureEvent } from "~/lib/posthog-server"
 
 async function getClientInfo() {
 	const headersList = await headers()
@@ -54,7 +55,7 @@ export async function trackCategoryVisit(categoryId: string) {
 	}
 }
 
-export async function trackLinkClick(linkId: string, categoryId: string) {
+export async function trackLinkClick(linkId: string, categoryId: string, linkUrl?: string) {
 	try {
 		const { userAgent, ip } = await getClientInfo()
 
@@ -67,6 +68,15 @@ export async function trackLinkClick(linkId: string, categoryId: string) {
 			categoryId,
 			userAgent,
 			ip
+		})
+
+		// Track with PostHog server-side
+		const distinctId = ip || "anonymous"
+		await captureEvent(distinctId, "link_card_clicked", {
+			link_id: linkId,
+			link_url: linkUrl,
+			category_id: categoryId,
+			user_agent: userAgent
 		})
 	} catch (error) {
 		console.error("Failed to track link click:", error)

@@ -1,6 +1,9 @@
 import { and, eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
-import { trackCategoryVisit } from "~/app/(admin)/analytics/actions"
+import {
+	trackCategoryVisit,
+	trackLinkClick
+} from "~/app/(admin)/analytics/actions"
 import { LinkCard } from "~/components/LinkCard"
 import { db } from "~/db"
 import { linkCategory, linkTable } from "~/db/schema"
@@ -40,6 +43,8 @@ export async function LinkPage({ categoryId }: { categoryId: string }) {
 	if (links.length === 1) {
 		const link = links[0]
 		if (link) {
+			// Track the link click before redirecting
+			await trackLinkClick(link.id, categoryId, link.url)
 			redirect(link.url)
 		}
 	}
@@ -51,6 +56,8 @@ export async function LinkPage({ categoryId }: { categoryId: string }) {
 	) {
 		const link = links.find((link) => link.trigger === category.activeTrigger)
 		if (link) {
+			// Track the link click before redirecting
+			await trackLinkClick(link.id, categoryId, link.url)
 			redirect(link.url)
 		}
 	}

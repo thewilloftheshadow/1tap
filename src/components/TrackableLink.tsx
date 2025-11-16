@@ -32,7 +32,7 @@ export function TrackableLink({
 			category_id: categoryId
 		})
 		try {
-			await trackLinkClick(linkId, categoryId)
+			await trackLinkClick(linkId, categoryId, href)
 		} catch (error) {
 			console.error("Failed to track click:", error)
 		}
