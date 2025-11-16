@@ -10,10 +10,26 @@ async function getClientInfo() {
 	const userAgent = headersList.get("user-agent")
 	const forwarded = headersList.get("x-forwarded-for")
 	const realIp = headersList.get("x-real-ip")
+	const cookieHeader = headersList.get("cookie")
 
 	const ip = forwarded ? forwarded.split(",")[0]?.trim() : realIp
 
-	return { userAgent, ip }
+	// Extract PostHog distinct_id from cookies
+	let posthogDistinctId: string | undefined
+	if (cookieHeader) {
+		const match = cookieHeader.match(/ph_[^_]+_posthog=([^;]+)/)
+		if (match?.[1]) {
+			try {
+				const decoded = decodeURIComponent(match[1])
+				const parsed = JSON.parse(decoded)
+				posthogDistinctId = parsed.distinct_id
+			} catch {
+				// Failed to parse PostHog cookie
+			}
+		}
+	}
+
+	return { userAgent, ip, posthogDistinctId }
 }
 
 function isBot(userAgent: string | null): boolean {
@@ -55,9 +71,14 @@ export async function trackCategoryVisit(categoryId: string) {
 	}
 }
 
-export async function trackLinkClick(linkId: string, categoryId: string, linkUrl?: string) {
+export async function trackLinkClick(
+	linkId: string,
+	categoryId: string,
+	linkUrl?: string,
+	clientDistinctId?: string
+) {
 	try {
-		const { userAgent, ip } = await getClientInfo()
+		const { userAgent, ip, posthogDistinctId } = await getClientInfo()
 
 		if (isBot(userAgent)) {
 			return
@@ -71,7 +92,8 @@ export async function trackLinkClick(linkId: string, categoryId: string, linkUrl
 		})
 
 		// Track with PostHog server-side
-		const distinctId = ip || "anonymous"
+		// Priority: client-provided ID > cookie ID > IP fallback
+		const distinctId = clientDistinctId || posthogDistinctId || ip || "anonymous"
 		await captureEvent(distinctId, "link_card_clicked", {
 			link_id: linkId,
 			link_url: linkUrl,

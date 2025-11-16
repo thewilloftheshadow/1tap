@@ -26,13 +26,16 @@ export function TrackableLink({
 	children: React.ReactNode
 }) {
 	const handleClick = async () => {
+		// Get PostHog distinct_id to pass to server
+		const distinctId = posthog.get_distinct_id()
+
 		posthog.capture("link_card_clicked", {
 			link_id: linkId,
 			link_url: href,
 			category_id: categoryId
 		})
 		try {
-			await trackLinkClick(linkId, categoryId, href)
+			await trackLinkClick(linkId, categoryId, href, distinctId)
 		} catch (error) {
 			console.error("Failed to track click:", error)
 		}
