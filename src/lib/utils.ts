@@ -10,9 +10,14 @@ export function titleCase(str: string) {
 }
 
 export function formatDate(date: Date) {
-	return date.toLocaleDateString("en-US", {
+	return `${date.toLocaleDateString("en-US", {
 		month: "long",
 		day: "numeric",
 		year: "numeric"
-	})
+	})} ${date.toLocaleTimeString("en-US", {
+		hour: `2-digit`,
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false
+	})}`
 }

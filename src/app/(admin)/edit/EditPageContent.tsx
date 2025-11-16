@@ -216,10 +216,12 @@ function EditLinkForm({
 
 function EditLinkCard({
 	link,
-	onSuccess
+	onSuccess,
+	onCategoriesChange
 }: {
 	link: typeof linkTable.$inferSelect
 	onSuccess?: () => void
+	onCategoriesChange?: () => void
 }) {
 	const [isEditOpen, setIsEditOpen] = useState(false)
 	const [isActive, setIsActive] = useState(link.active)
@@ -265,6 +267,20 @@ function EditLinkCard({
 		}
 	}
 
+	const handleSetTrigger = async () => {
+		if (!link.trigger || !link.categoryId) return
+
+		await updateCategoryTrigger(link.categoryId, link.trigger, null)
+		posthog.capture("trigger_set_manually", {
+			link_id: link.id,
+			link_name: link.name,
+			trigger: link.trigger,
+			category_id: link.categoryId
+		})
+		onCategoriesChange?.()
+		onSuccess?.()
+	}
+
 	return (
 		<div className="relative">
 			<div
@@ -301,6 +317,18 @@ function EditLinkCard({
 						</Button>
 					}
 				/>
+
+				<Button
+					variant="default"
+					size="sm"
+					onClick={handleSetTrigger}
+					disabled={!link.trigger}
+					title={
+						link.trigger ? `Set trigger: ${link.trigger}` : "No trigger set"
+					}
+				>
+					Set Trigger
+				</Button>
 
 				<Button variant="destructive" size="sm" onClick={handleDelete}>
 					Delete
@@ -540,6 +568,7 @@ export function EditPageContent() {
 										key={link.id}
 										link={link}
 										onSuccess={refreshLinks}
+										onCategoriesChange={refreshCategories}
 									/>
 								))}
 							</SortableContext>
